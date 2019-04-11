@@ -25,6 +25,7 @@ option(BUILD_LOADER "Build loader" ON)
 option(DYNAMIC_LOADER "Build the loader as a .dll library" OFF)
 option(BUILD_API_LAYERS "Build API layers" ON)
 option(BUILD_TESTS "Build tests" ON)
+option(INCLUDE_VULKANHEADERS "Include Vulkan headers" ON)
 
 # Several files use these compile-time OS switches
 if(WIN32)
@@ -45,16 +46,18 @@ elseif( PRESENTATION_BACKEND MATCHES "wayland" )
 endif()
 
 # Enable graphics API available to the build.
-if (NOT CMAKE_VERSION VERSION_LESS 3.7.0)
-    # Find the Vulkan headers
-    find_package(VulkanHeaders)
-    if (VulkanHeaders_FOUND)
-        add_definitions(-DXR_USE_GRAPHICS_API_VULKAN)
+if (INCLUDE_VULKANHEADERS)
+    if (NOT CMAKE_VERSION VERSION_LESS 3.7.0)
+        # Find the Vulkan headers
+        find_package(VulkanHeaders)
+        if (VulkanHeaders_FOUND)
+            add_definitions(-DXR_USE_GRAPHICS_API_VULKAN)
+        endif()
+        # Find the Vulkan loader.
+        find_package(Vulkan)
+        # To use simply include ${Vulkan_LIBRARY} in your target_link_library or
+        # wherever you normally link your library files to your target.
     endif()
-    # Find the Vulkan loader.
-    find_package(Vulkan)
-    # To use simply include ${Vulkan_LIBRARY} in your target_link_library or
-    # wherever you normally link your library files to your target.
 endif()
 
 find_package(OpenGL)
